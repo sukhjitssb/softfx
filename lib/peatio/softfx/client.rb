@@ -38,7 +38,7 @@ module Peatio
 
       def rest_api(url, body, method = 'post')
         timestamp = (Time.now.to_i * 1000).to_s
-        body = body.present? ? JSON.generate(body) : ""
+        body = body.present? ? JSON.generate(body) : nil
 
         response = connection.send(method.downcase) do |req|
           req.headers['Accept'] = 'application/json',
