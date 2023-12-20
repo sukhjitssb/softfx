@@ -29,11 +29,7 @@ module Peatio
       end
 
       def get_http_hmac_header(method, url, body, timestamp)
-        timestamp = timestamp
-
-        body = '' if body.nil?
-
-        signature = timestamp + @web_api_id + @web_api_key + method.upcase + url + JSON.generate(body)
+        signature = timestamp + @web_api_id + @web_api_key + method.upcase + url + body
         digest = OpenSSL::HMAC.digest(OpenSSL::Digest.new('sha256'), @web_api_secret, signature)
         hash_value = Base64.encode64(digest).chomp
         auth_value = "HMAC #{@web_api_id}:#{@web_api_key}:#{timestamp}:#{hash_value}"
@@ -42,6 +38,7 @@ module Peatio
 
       def rest_api(url, body, method = 'post')
         timestamp = (Time.now.to_i * 1000).to_s
+        body = body.nil? ? '' : JSON.generate(body)
 
         response = connection.send(method.downcase) do |req|
           req.headers['Accept'] = 'application/json',
@@ -49,7 +46,7 @@ module Peatio
           req.headers['Authorization'] = get_http_hmac_header(timestamp, method.upcase, url, body )
           req.url url
           puts req.headers
-          req.body = JSON.generate(body) if body.present?
+          req.body = body if body.present?
         end
         response.assert_success!
         response
