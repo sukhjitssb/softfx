@@ -33,7 +33,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "activesupport", "~> 6.1.0"
   spec.add_dependency "faraday", "~> 0.17"
-  spec.add_dependency "peatio", ">= 3.1.1"
+  spec.add_dependency "peatio"
   spec.add_dependency 'net-http-persistent', '~> 4.0.1'
 
   spec.add_development_dependency "bundler", "~> 2.1.4"
