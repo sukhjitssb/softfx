@@ -42,8 +42,9 @@ module Peatio
         body = body.present? ? JSON.generate(body) : ""
 
         response = connection.send(method.downcase) do |req|
-          req.headers['Accept'] = 'application/json',
-          req.headers['Content-type'] = 'application/json',
+          req.headers['Accept'] = 'application/json'
+          req.headers['Accept-encoding'] = 'gzip, deflate' if method.downcase == "get"
+          req.headers['Content-type'] = 'application/json'
           req.headers['Authorization'] = get_http_hmac_header(timestamp, method.upcase, url, body )
           req.url url
           puts req.headers
