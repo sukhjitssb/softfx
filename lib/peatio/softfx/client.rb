@@ -21,6 +21,7 @@ module Peatio
       extend Memoist
 
       def initialize(endpoint, creds, idle_timeout: 25)
+        creds = creds.with_indifferent_access rescue {}
         @rest_api_endpoint = URI.parse(endpoint)
         @web_api_id = creds.dig("web_api_id")
         @web_api_key = creds.dig("web_api_key")
