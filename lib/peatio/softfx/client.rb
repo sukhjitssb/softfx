@@ -5,66 +5,68 @@ require 'net/http'
 require 'openssl'
 require 'json'
 
-module Softfx
-  class Client
-    Error = Class.new(StandardError)
+module Peatio
+  module Softfx
+    class Client
+      Error = Class.new(StandardError)
 
-    class ConnectionError < Error; end
+      class ConnectionError < Error; end
 
-    class ResponseError < Error
-      def initialize(code, msg)
-        super "#{msg} (#{code})"
+      class ResponseError < Error
+        def initialize(code, msg)
+          super "#{msg} (#{code})"
+        end
       end
-    end
 
-    extend Memoist
+      extend Memoist
 
-    def initialize(endpoint, creds, idle_timeout: 25)
-      @rest_api_endpoint = URI.parse(endpoint)
-      @web_api_id = creds.dig("web_api_id")
-      @web_api_key = creds.dig("web_api_key")
-      @web_api_secret = creds.dig("web_api_secret")
-      @idle_timeout = idle_timeout
-    end
-
-    def get_http_hmac_header(method, url, body, timestamp)
-      timestamp = timestamp
-
-      body = '' if body.nil?
-
-      signature = timestamp + @web_api_id + @web_api_key + method.upcase + url + JSON.generate(body)
-      digest = OpenSSL::HMAC.digest(OpenSSL::Digest.new('sha256'), @web_api_secret, signature)
-      hash_value = Base64.encode64(digest).chomp
-      auth_value = "HMAC #{@web_api_id}:#{@web_api_key}:#{timestamp}:#{hash_value}"
-      auth_value
-    end
-
-    def rest_api(url, body, method = 'post')
-      timestamp = (Time.now.to_i * 1000).to_s
-
-      response = connection.send(method.downcase) do |req|
-        req.headers['Accept'] = 'application/json',
-        req.headers['Content-type'] = 'application/json',
-        req.headers['Authorization'] = get_http_hmac_header(timestamp, method.upcase, url, body )
-        req.url url
-        puts req.headers
-        req.body = JSON.generate(body) if body.present?
+      def initialize(endpoint, creds, idle_timeout: 25)
+        @rest_api_endpoint = URI.parse(endpoint)
+        @web_api_id = creds.dig("web_api_id")
+        @web_api_key = creds.dig("web_api_key")
+        @web_api_secret = creds.dig("web_api_secret")
+        @idle_timeout = idle_timeout
       end
-      response.assert_success!
-      response
-    rescue Faraday::Error => _e
-      puts "----Response-----Client---------#{response.body.inspect}"
-      # raise ConnectionError, response.body
-      response
-    rescue StandardError => e
-      raise Error, e
-    end
 
-    private
+      def get_http_hmac_header(method, url, body, timestamp)
+        timestamp = timestamp
 
-    def connection
-      @connection ||= Faraday.new(@rest_api_endpoint) do |f|
-        f.adapter :net_http_persistent, pool_size: 5, idle_timeout: @idle_timeout
+        body = '' if body.nil?
+
+        signature = timestamp + @web_api_id + @web_api_key + method.upcase + url + JSON.generate(body)
+        digest = OpenSSL::HMAC.digest(OpenSSL::Digest.new('sha256'), @web_api_secret, signature)
+        hash_value = Base64.encode64(digest).chomp
+        auth_value = "HMAC #{@web_api_id}:#{@web_api_key}:#{timestamp}:#{hash_value}"
+        auth_value
+      end
+
+      def rest_api(url, body, method = 'post')
+        timestamp = (Time.now.to_i * 1000).to_s
+
+        response = connection.send(method.downcase) do |req|
+          req.headers['Accept'] = 'application/json',
+          req.headers['Content-type'] = 'application/json',
+          req.headers['Authorization'] = get_http_hmac_header(timestamp, method.upcase, url, body )
+          req.url url
+          puts req.headers
+          req.body = JSON.generate(body) if body.present?
+        end
+        response.assert_success!
+        response
+      rescue Faraday::Error => _e
+        puts "----Response-----Client---------#{response.body.inspect}"
+        # raise ConnectionError, response.body
+        response
+      rescue StandardError => e
+        raise Error, e
+      end
+
+      private
+
+      def connection
+        @connection ||= Faraday.new(@rest_api_endpoint) do |f|
+          f.adapter :net_http_persistent, pool_size: 5, idle_timeout: @idle_timeout
+        end
       end
     end
   end
