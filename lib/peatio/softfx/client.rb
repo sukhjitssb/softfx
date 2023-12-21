@@ -22,11 +22,26 @@ module Peatio
 
       def initialize(endpoint, creds, idle_timeout: 25)
         creds = creds.with_indifferent_access rescue {}
+        @rest_api_url = endpoint
         @rest_api_endpoint = URI.parse(endpoint)
         @web_api_id = creds.dig("web_api_id")
         @web_api_key = creds.dig("web_api_key")
         @web_api_secret = creds.dig("web_api_secret")
         @idle_timeout = idle_timeout
+      end
+
+      def get_trade_info
+        url = "/api/v2/trade"
+        method = "get"
+        response = rest_api(url, body, method)
+        response
+      end
+
+      def create_trade(body)
+        url = "/api/v2/trade"
+        method = "post"
+        response = rest_api(url, body, method)
+        response
       end
 
       def get_http_hmac_header(method, url, body, timestamp)
@@ -40,13 +55,14 @@ module Peatio
       def rest_api(url, body, method = 'post')
         timestamp = (Time.now.to_i * 1000).to_s
         body = body.present? ? JSON.generate(body) : ""
+        full_url = @rest_api_url + url
 
         response = connection.send(method.downcase) do |req|
           req.headers['Accept'] = 'application/json'
           req.headers['Accept-encoding'] = 'gzip, deflate' if method.downcase == "get"
           req.headers['Content-type'] = 'application/json'
           req.headers['Authorization'] = get_http_hmac_header(method, url, body, timestamp )
-          req.url url
+          req.url full_url
           req.body = body if body.present?
         end
         response.assert_success!
