@@ -61,7 +61,7 @@ module Peatio
           req.headers['Accept'] = 'application/json'
           req.headers['Accept-encoding'] = 'gzip, deflate' if method.downcase == "get"
           req.headers['Content-type'] = 'application/json'
-          req.headers['Authorization'] = get_http_hmac_header(method, url, body, timestamp )
+          req.headers['Authorization'] = get_http_hmac_header(method, full_url, body, timestamp )
           req.url full_url
           req.body = body if body.present?
         end
