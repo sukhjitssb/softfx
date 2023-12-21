@@ -59,7 +59,7 @@ module Peatio
 
         response = connection.send(method.downcase) do |req|
           req.headers['Accept'] = 'application/json'
-          req.headers['Accept-encoding'] = 'gzip, deflate' if method.downcase == "get"
+          req.headers['Accept-encoding'] = 'gzip, deflate' unless method.downcase == "get"
           req.headers['Content-type'] = 'application/json'
           req.headers['Authorization'] = get_http_hmac_header(method, full_url, body, timestamp )
           req.url full_url
