@@ -30,8 +30,8 @@ module Peatio
         @idle_timeout = idle_timeout
       end
 
-      def get_trade_info(body = "")
-        url = "/api/v2/trade"
+      def get_trade_info(body = "",url_params)
+        url = "/api/v2/trade" + url_params
         method = "get"
         response = rest_api(url, body, method)
         response
