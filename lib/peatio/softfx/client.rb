@@ -44,6 +44,13 @@ module Peatio
         response
       end
 
+      def cancel_trade(id)
+        url = "/api/v2/trade?trade.type=Cancel&trade.id=#{id}"
+        method = "delete"
+        response = rest_api(url, body, method)
+        response
+      end
+
       def get_http_hmac_header(method, url, body, timestamp)
         signature = timestamp + @web_api_id + @web_api_key + method.upcase + url + body
         digest = OpenSSL::HMAC.digest(OpenSSL::Digest.new('sha256'), @web_api_secret, signature)
