@@ -47,7 +47,7 @@ module Peatio
       def cancel_trade(id)
         url = "/api/v2/trade?trade.type=Cancel&trade.id=#{id}"
         method = "delete"
-        response = rest_api(url, body, method)
+        response = rest_api(url, "", method)
         response
       end
 
