@@ -47,7 +47,7 @@ module Peatio
       def cancel_trade(id)
         url = "/api/v2/trade?trade.type=Cancel&trade.id=#{id}"
         method = "delete"
-        response = rest_api(url, "", method)
+        response = rest_api(url, nil, method)
         response
       end
 
@@ -66,7 +66,6 @@ module Peatio
 
         response = connection.send(method.downcase) do |req|
           req.headers['Accept'] = 'application/json'
-          # req.headers['Accept-encoding'] = 'gzip, deflate' unless method.downcase == "get"
           req.headers['Content-type'] = 'application/json'
           req.headers['Authorization'] = get_http_hmac_header(method, full_url, body, timestamp )
           req.url full_url
