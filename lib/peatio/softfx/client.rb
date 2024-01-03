@@ -32,42 +32,39 @@ module Peatio
 
       def get_trade_info(body = "",url_params)
         url = "/api/v2/trade" + url_params
-        method = "get"
-        response = rest_api(url, body, method)
+        response = rest_api(url, body, "get")
         response
       end
 
       def create_trade(body)
         url = "/api/v2/trade"
-        method = "post"
-        response = rest_api(url, body, method)
+        response = rest_api(url, body, "post")
         response
       end
 
       def cancel_trade(id)
         url = "/api/v2/trade?trade.type=Cancel&trade.id=#{id}"
-        method = "delete"
-        response = rest_api(url, nil, method)
+        response = rest_api(url, nil, "delete")
         response
       end
 
-      def get_http_hmac_header(method, url, body, timestamp)
-        signature = timestamp + @web_api_id + @web_api_key + method.upcase + url + body
+      def get_http_hmac_header(req_type, url, body, timestamp)
+        signature = timestamp + @web_api_id + @web_api_key + req_type.upcase + url + body
         digest = OpenSSL::HMAC.digest(OpenSSL::Digest.new('sha256'), @web_api_secret, signature)
         hash_value = Base64.encode64(digest).chomp
         auth_value = "HMAC #{@web_api_id}:#{@web_api_key}:#{timestamp}:#{hash_value}"
         auth_value
       end
 
-      def rest_api(url, body, method = 'post')
+      def rest_api(url, body, req_type = 'post')
         timestamp = (Time.now.to_i * 1000).to_s
         body = body.present? ? JSON.generate(body) : ""
         full_url = @rest_api_url + url
 
-        response = connection.send(method.downcase) do |req|
+        response = connection.send(req_type.downcase) do |req|
           req.headers['Accept'] = 'application/json'
           req.headers['Content-type'] = 'application/json'
-          req.headers['Authorization'] = get_http_hmac_header(method, full_url, body, timestamp )
+          req.headers['Authorization'] = get_http_hmac_header(req_type, full_url, body, timestamp )
           req.url full_url
           req.body = body if body.present?
         end
