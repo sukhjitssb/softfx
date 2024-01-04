@@ -61,30 +61,19 @@ module Peatio
         body = body.present? ? JSON.generate(body) : ""
         full_url = @rest_api_url + url
 
-        response = connection.send(req_type.downcase) do |req|
-          req.headers['Accept'] = 'application/json'
-          req.headers['Content-type'] = 'application/json'
-          req.headers['Authorization'] = get_http_hmac_header(req_type, full_url, body, timestamp )
-          req.url full_url
-          req.body = body if body.present?
-        end
-        response.assert_success!
-        response
-      rescue Faraday::Error => _e
-        puts "----Response-----Client---------#{response.body.inspect}"
-        # raise ConnectionError, response.body
+        response = HTTParty.send(req_type.downcase.to_sym, full_url, headers: {
+          'Accept' => 'application/json',
+          'Content-type' => 'application/json',
+          'Authorization' => get_http_hmac_header(req_type, full_url, body, timestamp )
+        },body: body)
+
+      rescue HTTParty::Error => _e
+        puts "----Error----------Body:----#{response.inspect}"
         response
       rescue StandardError => e
         raise Error, e
       end
 
-      private
-
-      def connection
-        @connection ||= Faraday.new(@rest_api_endpoint) do |f|
-          f.adapter :net_http_persistent, pool_size: 5, idle_timeout: @idle_timeout
-        end
-      end
     end
   end
 end
