@@ -30,22 +30,24 @@ module Peatio
         @idle_timeout = idle_timeout
       end
 
-      def get_trade_info(body = "",url_params)
+      def get_trade_info(body = "",url_params = "")
         url = "/api/v2/trade" + url_params
-        response = rest_api(url, body, "get")
-        response
+        rest_api(url, body, "get")
       end
 
       def create_trade(body)
         url = "/api/v2/trade"
-        response = rest_api(url, body, "post")
-        response
+        rest_api(url, body, "post")
       end
 
       def cancel_trade(id)
         url = "/api/v2/trade?trade.type=Cancel&trade.id=#{id}"
-        response = rest_api(url, nil, "delete")
-        response
+        rest_api(url, nil, "delete")
+      end
+
+      def quote_history(body = "", url_params = "", symbol, periodicity, type)
+        url = "/api/v2/quotehistory/#{symbol.upcase}/#{periodicity}/bars/#{type}" + url_params
+        rest_api(url, body, "get")
       end
 
       def get_http_hmac_header(req_type, url, body, timestamp)
