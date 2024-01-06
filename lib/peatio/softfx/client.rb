@@ -35,6 +35,11 @@ module Peatio
         rest_api(url, body, "get")
       end
 
+      def trade_history(body)
+        url = "/api/v2/tradehistory"
+        rest_api(url, body, "post")
+      end
+
       def create_trade(body)
         url = "/api/v2/trade"
         rest_api(url, body, "post")
