@@ -50,6 +50,11 @@ module Peatio
         rest_api(url, nil, "delete")
       end
 
+      def assets
+        url = "/api/v2/asset"
+        rest_api(url, nil, "get")
+      end
+
       def quote_history(body = "", url_params = "", symbol, periodicity, type)
         url = "/api/v2/quotehistory/#{symbol.upcase}/#{periodicity}/bars/#{type}" + url_params
         rest_api(url, body, "get")
