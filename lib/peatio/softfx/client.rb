@@ -55,6 +55,11 @@ module Peatio
         rest_api(url, nil, "get")
       end
 
+      def depth(symbol, depth)
+        url = "https://demonstrationwebapi.soft-fx.eu:8443/api/v2/level2/#{symbol.upcase}?depth=#{depth}"
+        rest_api(url, nil, "get")
+      end
+
       def quote_history(body = "", url_params = "", symbol, periodicity, type)
         url = "/api/v2/quotehistory/#{symbol.upcase}/#{periodicity}/bars/#{type}" + url_params
         rest_api(url, body, "get")
