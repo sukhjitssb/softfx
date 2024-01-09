@@ -56,7 +56,7 @@ module Peatio
       end
 
       def depth(symbol, depth)
-        url = "https://demonstrationwebapi.soft-fx.eu:8443/api/v2/level2/#{symbol.upcase}?depth=#{depth}"
+        url = "/api/v2/level2/#{symbol.upcase}?depth=#{depth}"
         rest_api(url, nil, "get")
       end
 
